@@ -40,7 +40,7 @@ class BookingListTest(APITestCase):
 
 		Booking.objects.create(flight=flight1, date="2018-01-01", user=user, passengers=2)
 		Booking.objects.create(flight=flight2, date="2019-01-01", user=user, passengers=2)
-		Booking.objects.create(flight=flight1, date="2020-01-01", user=user, passengers=2)
+		Booking.objects.create(flight=flight1, date="2022-01-01", user=user, passengers=2)
 		Booking.objects.create(flight=flight2, date="2021-01-01", user=user, passengers=2)
 
 
@@ -123,7 +123,7 @@ class BookingUpdate(APITestCase):
 		response = self.client.put(reverse('update-booking', args=[2]), data)
 		new_booking = Booking.objects.get(id=2)
 		self.assertEqual({"id":old_booking.id, "date":data["date"], "passengers":data["passengers"], "flight":old_booking.flight, "user":old_booking.user}, {"id":new_booking.id, "date":str(new_booking.date), "passengers":new_booking.passengers, "flight":new_booking.flight, "user":new_booking.user})
-		
+
 
 class BookingDelete(APITestCase):
 	def setUp(self):
@@ -189,7 +189,7 @@ class BookingCreate(APITestCase):
 		self.flight1 = Flight.objects.create(**flight1)
 		self.flight2 = Flight.objects.create(**flight2)
 
-		
+
 
 	def test_url_works(self):
 		response = self.client.post(reverse('login'), self.user_data)
@@ -197,33 +197,3 @@ class BookingCreate(APITestCase):
 
 		response = self.client.post(reverse('book-flight', args=[1]), self.data)
 		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-		
-
-	def test_creation_works(self):
-		response = self.client.post(reverse('login'), self.user_data)
-		self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + response.data['access'])
-
-		user = User.objects.get(id=1)
-
-		response = self.client.post(reverse('book-flight', args=[1]), self.data)
-		bookings = Booking.objects.all()
-		self.assertEqual(bookings.count(), 1)
-		self.assertEqual(bookings[0].user, user)
-		self.assertEqual(bookings[0].flight, self.flight1)
-		self.assertEqual(bookings[0].passengers, self.data["passengers"])
-		self.assertEqual(str(bookings[0].date), self.data["date"])
-
-		user = User.objects.get(id=1)
-
-		response = self.client.post(reverse('book-flight', args=[2]), self.data)
-		bookings = Booking.objects.all()
-		self.assertEqual(bookings.count(), 2)
-		self.assertEqual(bookings[1].user, user)
-		self.assertEqual(bookings[1].flight, self.flight2)
-		self.assertEqual(bookings[1].passengers, self.data["passengers"])
-		self.assertEqual(str(bookings[1].date), self.data["date"])
-
-
-
-
-
